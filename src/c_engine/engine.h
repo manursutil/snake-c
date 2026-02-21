@@ -44,6 +44,7 @@ void engine_step(int action);
 
 int engine_is_done(void);
 int engine_get_score(void);
+int engine_get_reward(void);
 
 GameState* engine_get_state(void);
 

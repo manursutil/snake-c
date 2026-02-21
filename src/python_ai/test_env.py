@@ -5,6 +5,8 @@ lib = ctypes.CDLL("build/libsnake.so")
 
 MAX_LENGTH = 500
 CELL = 20
+WIDTH = 900
+HEIGHT = 600
 
 class Vector2i(Structure):
     _fields_ = [("x", c_int),
@@ -45,6 +47,7 @@ lib.engine_reset.argtypes = []
 lib.engine_step.argtypes = [c_int]
 lib.engine_is_done.restype = c_int
 lib.engine_get_score.restype = c_int
+lib.engine_get_reward.restype = c_int
 lib.engine_get_state.restype = POINTER(GameState)
 
 def state():
@@ -81,6 +84,8 @@ def run_checks():
     s2 = state()
     x2 = s2.snake.body[0].pos.x
     y2 = s2.snake.body[0].pos.y
+    
+    reward = lib.engine_get_reward()
 
     assert x2 == x1 + CELL and y2 == y1, "head did not move into apple cell"
     assert s2.score == score_before + 1, f"expected score {score_before + 1}, got {s2.score}"
@@ -88,7 +93,26 @@ def run_checks():
         f"expected length {length_before + 1}, got {s2.snake.length}"
     )
     assert not s2.gameOver, "game should continue after eating apple"
+    assert reward == 1, f"expected reward = 1, got reward = {reward}"
     assert_on_grid(x2, y2)
+    
+    # Correct Game Over Testing (Out of bounds)
+    lib.engine_reset()
+    s3 = state()
+    s3.snake.body[0].pos.x = WIDTH - CELL
+    s3.snake.body[0].pos.y = (HEIGHT // CELL // 2) * CELL
+    s3.snake.v.vx = 1
+    s3.snake.v.vy = 0
+
+    lib.engine_step(0)
+    s4 = state()
+    reward_after_game_over = lib.engine_get_reward()
+
+    assert s4.gameOver == 1, "expected game over after moving out of bounds"
+    assert lib.engine_is_done() == 1, "engine_is_done() should be 1 after game over"
+    assert reward_after_game_over == -1, (
+        f"expected reward = -1 on game over, got reward = {reward_after_game_over}"
+    )
 
     print("PASS: engine moves on grid and eats apples correctly.")
 

@@ -3,6 +3,7 @@
 #include <time.h>
 
 static GameState state;
+static int last_reward = 0;
 
 static Vector2i getApplePosition(void) {
     int cols = WIDTH / CELL;
@@ -56,6 +57,7 @@ void engine_step(int action) {
     // Wall collision
     if (head.x < 0 || head.x >= WIDTH || head.y < 0 || head.y >= HEIGHT) {
         state.gameOver = 1;
+        last_reward = -1;
         return;
     }
 
@@ -63,6 +65,7 @@ void engine_step(int action) {
     for (int i = 1; i < state.snake.length; i++) {
         if (head.x == state.snake.body[i].pos.x && head.y == state.snake.body[i].pos.y) {
             state.gameOver = 1;
+            last_reward = -1;
             return;
         }
     }
@@ -77,6 +80,7 @@ void engine_step(int action) {
         state.apple.x = (int)applePos.x;
         state.apple.y = (int)applePos.y;
         state.score++;
+        last_reward = 1;
     }
 }
 
@@ -86,6 +90,10 @@ int engine_is_done(void) {
 
 int engine_get_score(void) {
     return state.score;
+}
+
+int engine_get_reward(void) {
+    return last_reward;
 }
 
 GameState* engine_get_state(void) {
