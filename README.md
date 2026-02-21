@@ -6,26 +6,42 @@ The player controls a snake that grows by eating apples. The game ends when the 
 
 ![snake gif](snake.gif)
 
-## Installation and Usage
+## Installation
 
-1. Install the **Raylib** library by following the official documentation: https://github.com/raysan5/raylib?tab=readme-ov-file#build-and-installation
+1. Install **Raylib** (with `pkg-config` support):
+https://github.com/raysan5/raylib?tab=readme-ov-file#build-and-installation
 
-2. Clone the repository:
+2. Clone this repository:
 
 ```bash
 git clone https://github.com/manursutil/snake-c.git
-cd snake-raylib
+cd snake-c
 ```
 
-3. After installation, you can compile and run the program on macOS using gcc:
+3. Ensure the build script is executable:
 
 ```bash
-gcc snake.c $(pkg-config --libs --cflags raylib) -o snake && ./snake
+chmod +x build.sh
 ```
 
-For other operating systems, please refer to the official Raylib documentation.
+`raymath.h` is included in this repository.
 
-4. The Raymath library is also required, but the raymath.h file is already included in this repository.
+## Usage
+
+Build the refactored version from `src/`:
+
+```bash
+./build.sh
+```
+
+Run the game:
+
+```bash
+./build/snake
+```
+
+Notes:
+- The current build flow compiles C sources under `src/` only.
 
 ## Controls
 
@@ -38,7 +54,14 @@ For other operating systems, please refer to the official Raylib documentation.
 
 ```text
 .
-├── snake.c        # Main source code
-├── raymath.h      # Raylib math library
+├── build.sh                 # Build script for refactored sources
+├── raymath.h                # Raymath header
+├── src
+│   └── c_engine
+│       ├── main.c           # Rendering loop + input
+│       ├── engine.c         # Game logic/state updates
+│       ├── engine.h         # Engine API and shared types/constants
+│       ├── env_api.c        # Placeholder for environment API
+│       └── env_api.h        # Placeholder for environment API
 └── README.md
 ```
