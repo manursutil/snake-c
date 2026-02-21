@@ -4,8 +4,6 @@ Work in progress reinforcement learning project for Snake, built in Python with 
 
 The goal is to train an AI agent to play Snake by interacting with the engine through Python.
 
-![snake gif](snake.gif)
-
 ## Status
 
 This project is currently a **work in progress**.
