@@ -1,80 +1,120 @@
-# Snake AI (WIP)
+# Snake AI
 
-Work in progress reinforcement learning project for Snake, built in Python with a C engine backend.
+Snake AI is a reinforcement learning project that combines:
+- A C Snake engine (with raylib rendering)
+- A Python DQN agent (PyTorch)
 
-The goal is to train an AI agent to play Snake by interacting with the engine through Python.
-
-## Status
-
-This project is currently a **work in progress**.
-
-- The C engine exists under `src/c_engine`.
-- A Python integration test exists under `src/python_ai/test_env.py`.
-- Training pipeline and full RL loop are still under development.
+![Preview](preview.gif)
 
 ## Installation
 
-1. Clone this repository:
-
-```bash
-git clone https://github.com/manursutil/snake-c.git
-cd snake-c
-```
-
-2. Ensure the build script is executable:
-
-```bash
-chmod +x build.sh
-```
-
-3. Ensure Python 3 is installed.
-
-Optional (only for playable C game mode):
-- Install Raylib with `pkg-config` support:
-https://github.com/raysan5/raylib?tab=readme-ov-file#build-and-installation
+1. Install raylib (with `pkg-config` support):
+[raylib build and installation docs](https://github.com/raysan5/raylib?tab=readme-ov-file#build-and-installation)
+2. Install Python 3.14+
+3. Install project Python dependencies: `torch`, `numpy`, `matplotlib` (I used `uv` for this project)
+4. Clone this repository
 
 ## Usage
 
-Build the shared engine library for Python:
+### 1. Build the native playable game (C)
+
+```bash
+./build.sh game
+```
+
+Run it:
+
+```bash
+./build/snake
+```
+
+Controls:
+- Right: `0` action internally (`→` key)
+- Left: `1` action internally (`←` key)
+- Up: `2` action internally (`↑` key)
+- Down: `3` action internally (`↓` key)
+
+### 2. Build the shared engine for Python
 
 ```bash
 ./build.sh engine
 ```
 
-Run the Python engine integration test:
+This generates:
+
+```text
+build/libsnake.so
+```
+
+### 3. Run Python engine test environment
 
 ```bash
 python3 src/python_ai/test_env.py
 ```
 
-Optional: build and run the playable C game:
+### 4. Train the DQN agent
+
+```bash
+python3 src/python_ai/training.py
+```
+
+Training saves weights to:
+
+```text
+model/snake_dqn.pt
+```
+
+### 5. Watch the trained agent play
+
+Make sure `model/snake_dqn.pt` exists, then run:
+
+```bash
+python3 src/python_ai/play.py
+```
+
+## Build script modes
+
+`build.sh` supports two modes:
 
 ```bash
 ./build.sh game
-./build/snake
+./build.sh engine
 ```
 
-## Controls
+If no mode is provided, it defaults to `game`.
 
-- ⬆️ Up Arrow: move up
-- ⬇️ Down Arrow: move down
-- ⬅️ Left Arrow: move left
-- ➡️ Right Arrow: move right
+## Platform notes
 
-## Project Structure 
+### Linux or macOS
+
+If raylib is available through `pkg-config`, the commands above should work directly.
+
+### Other platforms / setups
+
+If `pkg-config`-based build fails (common on Windows or custom raylib installs), build manually with your preferred toolchain (for example CMake or an IDE), and ensure Python can load the produced shared library.
+
+See raylib platform-specific guidance:
+[raylib build and installation docs](https://github.com/raysan5/raylib#build-and-installation)
+
+## Project structure
 
 ```text
-.
-├── build.sh                 # Builds game binary or shared engine library
-├── build/                   # Build artifacts (snake, libsnake.so)
-├── raymath.h                # Math header used by C engine
-├── snake.gif                # Demo gif
-├── src
-│   ├── c_engine
-│       ├── main.c           # Rendering loop + input
-│       ├── engine.c         # Game logic/state updates
-│       ├── engine.h         # Engine API and shared types/constants
-│   └── python_ai
-│       └── test_env.py      # ctypes-based Python test against C engine
+snake-ai/
+├── build.sh
+├── model/
+│   └── snake_dqn.pt
+├── src/
+│   ├── engine/
+│   │   ├── engine.c
+│   │   ├── engine.h
+│   │   └── main.c
+│   └── agent/
+│       ├── model.py
+│       ├── play.py
+│       ├── snake_env.py
+│       ├── test_env.py
+│       └── training.py
+├── raymath.h
+├── pyproject.toml
 └── README.md
 ```
