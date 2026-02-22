@@ -1,4 +1,41 @@
 import numpy as np
+import ctypes
+from ctypes import c_int, Structure, POINTER
+
+MAX_LENGTH = 500
+
+
+class Vector2i(Structure):
+    _fields_ = [("x", c_int), ("y", c_int)]
+
+
+class SnakeSegment(Structure):
+    _fields_ = [("pos", Vector2i)]
+
+
+class Velocity(Structure):
+    _fields_ = [("vx", c_int), ("vy", c_int)]
+
+
+class Snake(Structure):
+    _fields_ = [
+        ("body", SnakeSegment * MAX_LENGTH),
+        ("length", c_int),
+        ("v", Velocity),
+    ]
+
+
+class Apple(Structure):
+    _fields_ = [("x", c_int), ("y", c_int), ("w", c_int), ("h", c_int)]
+
+
+class GameState(Structure):
+    _fields_ = [
+        ("snake", Snake),
+        ("apple", Apple),
+        ("gameOver", c_int),
+        ("score", c_int),
+    ]
 
 
 class SnakeEnv:
@@ -6,16 +43,30 @@ class SnakeEnv:
     WIDTH = 900
     HEIGHT = 600
 
-    def __init__(self, lib) -> None:
-        self.lib = lib
-        self.lib.engine_init(42)
+    def __init__(self, lib_path="build/libsnake.so", seed=42) -> None:
+        self.lib = ctypes.CDLL(lib_path)
+
+        self.lib.engine_get_state.argtypes = []
+        self.lib.engine_get_state.restype = POINTER(GameState)
+        self.lib.engine_init.argtypes = [c_int]
+        self.lib.engine_init.restype = None
+        self.lib.engine_reset.argtypes = []
+        self.lib.engine_reset.restype = None
+        self.lib.engine_step.argtypes = [c_int]
+        self.lib.engine_step.restype = None
+        self.lib.engine_is_done.argtypes = []
+        self.lib.engine_is_done.restype = c_int
+        self.lib.engine_get_score.argtypes = []
+        self.lib.engine_get_score.restype = c_int
+
+        self.lib.engine_init(seed)
 
     def reset(self) -> np.ndarray:
         self.lib.engine_reset()
         return self._get_obs()
 
-    def step(self, action: int) -> tuple[np.ndarray, float, bool]:
-        self.lib.step(action)
+    def step(self, action) -> tuple[np.ndarray, float, bool]:
+        self.lib.engine_step(action)
         obs = self._get_obs()
         reward = self.lib.engine_get_reward()
         done = self.lib.engine_is_done()

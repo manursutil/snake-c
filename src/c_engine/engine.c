@@ -14,6 +14,7 @@ static Vector2i getApplePosition(void) {
 }
 
 void engine_reset(void) {
+    last_reward = 0; 
     state.snake.length = 1;
     state.snake.body[0].pos = (Vector2i){(WIDTH / CELL / 2) * CELL, (HEIGHT / CELL / 2) * CELL};
     state.snake.v = (Velocity){1, 0};
@@ -34,6 +35,8 @@ void engine_init(int seed) {
 void engine_step(int action) {
     if (state.gameOver)
         return;
+
+    last_reward = 0;
 
     switch (action) {
     case 0:
