@@ -47,6 +47,22 @@ elif [ "$MODE" = "engine" ]; then
 
     echo "Built: $BUILD_DIR/libsnake.so"
 
+elif [ "$MODE" = "test" ]; then
+    echo "Running C engine tests..."
+
+    if ! pkg-config --exists raylib; then
+        echo "Error: raylib not found via pkg-config." >&2
+        exit 1
+    fi
+
+    gcc \
+        -Wall -Wextra -Wpedantic -std=c11 \
+        src/engine/engine.c \
+        src/engine/tests/test_engine.c \
+        $(pkg-config --cflags --libs raylib) \
+        -o /tmp/test_engine && /tmp/test_engine
+
+
 else
     echo "Unknown mode: $MODE"
     echo "Usage: ./build.sh [game|engine]"

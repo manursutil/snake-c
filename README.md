@@ -52,7 +52,13 @@ build/libsnake.so
 python3 src/python_ai/test_env.py
 ```
 
-### 4. Train the DQN agent
+### 4. Run C engine tests
+
+```bash
+./build.sh test
+```
+
+### 5. Train the DQN agent
 
 ```bash
 python3 src/python_ai/training.py
@@ -64,7 +70,7 @@ Training saves weights to:
 model/snake_dqn.pt
 ```
 
-### 5. Watch the trained agent play
+### 6. Watch the trained agent play
 
 Make sure `model/snake_dqn.pt` exists, then run:
 
@@ -74,11 +80,12 @@ python3 src/python_ai/play.py
 
 ## Build script modes
 
-`build.sh` supports two modes:
+`build.sh` supports three modes:
 
 ```bash
 ./build.sh game
 ./build.sh engine
+./build.sh test
 ```
 
 If no mode is provided, it defaults to `game`.
